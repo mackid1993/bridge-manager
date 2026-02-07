@@ -131,13 +131,14 @@ var askParams = map[string]func(string, map[string]string) (bool, error){
 		if platform == "" {
 			err := survey.AskOne(&survey.Select{
 				Message: "Select iMessage connector:",
-				Options: []string{"mac", "mac-nosip", "bluebubbles"},
+				Options: []string{"rustpush", "mac", "mac-nosip", "bluebubbles"},
 				Description: simpleDescriptions(map[string]string{
+					"rustpush":    "Connect directly to Apple's iMessage servers via rustpush (macOS 14.2+, recommended)",
 					"mac":         "Use AppleScript to send messages and read chat.db for incoming data - only requires Full Disk Access (from system settings)",
 					"mac-nosip":   "Use Barcelona to interact with private APIs - requires disabling SIP and AMFI",
 					"bluebubbles": "Connect to a BlueBubbles instance",
 				}),
-				Default: "mac",
+				Default: "rustpush",
 			}, &platform)
 			if err != nil {
 				return didAddParams, err
@@ -277,13 +278,18 @@ func doGenerateBridgeConfig(ctx *cli.Context, bridge string) (*generatedBridgeCo
 	if dbPrefix != "" {
 		dbPrefix = filepath.Join(dbPrefix, bridge+"-")
 	}
+	// When rustpush is selected, use the imessagego template but keep bridge type as imessage.
+	configTemplate := bridgeType
+	if extraParams["imessage_platform"] == "rustpush" {
+		configTemplate = "imessagego"
+	}
 	websocket := websocketBridges[bridgeType]
 	var listenAddress string
 	var listenPort uint16
 	if !websocket {
 		listenAddress, listenPort, reg.Registration.URL = getBridgeWebsocketProxyConfig(bridge, bridgeType)
 	}
-	cfg, err := bridgeconfig.Generate(bridgeType, bridgeconfig.Params{
+	cfg, err := bridgeconfig.Generate(configTemplate, bridgeconfig.Params{
 		HungryAddress:  reg.HomeserverURL,
 		BeeperDomain:   ctx.String("homeserver"),
 		Websocket:      websocket,
