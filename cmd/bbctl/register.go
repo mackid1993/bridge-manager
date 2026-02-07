@@ -117,7 +117,7 @@ func doRegisterBridge(ctx *cli.Context, bridge, bridgeType string, onlyGet bool)
 			StateEvent:   state,
 			Reason:       "SELF_HOST_REGISTERED",
 			IsSelfHosted: true,
-			BridgeType:   bridgeType,
+			BridgeType:   "imessage",
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to mark bridge as RUNNING: %w", err)
