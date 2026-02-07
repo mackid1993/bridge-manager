@@ -112,12 +112,17 @@ func doRegisterBridge(ctx *cli.Context, bridge, bridgeType string, onlyGet bool)
 		state = status.StateStarting
 	}
 
+	// Report imessage-v2 as "imessage" to the server so it's recognized as an iMessage bridge.
+	serverBridgeType := bridgeType
+	if serverBridgeType == "imessage-v2" {
+		serverBridgeType = "imessage"
+	}
 	if !ctx.Bool("no-state") {
 		err = beeperapi.PostBridgeState(ctx.String("homeserver"), GetEnvConfig(ctx).Username, bridge, resp.AppToken, beeperapi.ReqPostBridgeState{
 			StateEvent:   state,
 			Reason:       "SELF_HOST_REGISTERED",
 			IsSelfHosted: true,
-			BridgeType:   bridgeType,
+			BridgeType:   serverBridgeType,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to mark bridge as RUNNING: %w", err)
