@@ -115,7 +115,7 @@ func parseBridgeImage(bridge, image string, internal bool) string {
 
 func formatBridgeRemotes(name string, bridge beeperapi.WhoamiBridge) string {
 	switch {
-	case name == "hungryserv", name == "androidsms", name == "imessage":
+	case name == "hungryserv", name == "androidsms", name == "imessage", name == "imessage-v2":
 		return ""
 	case len(bridge.RemoteState) == 0:
 		if bridge.BridgeState.IsSelfHosted {

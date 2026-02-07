@@ -125,17 +125,27 @@ var askParams = map[string]func(string, map[string]string) (bool, error){
 		bbPassword := extraParams["bluebubbles_password"]
 		var didAddParams bool
 		if runtime.GOOS != "darwin" && platform == "" {
-			// Linux can't run the other connectors
-			platform = "bluebubbles"
+			// Linux can't run the other connectors (except rustpush)
+			if strings.Contains(bridgeName, "imessage-v2") {
+				platform = "rustpush"
+			} else {
+				platform = "bluebubbles"
+			}
+		}
+		if platform == "" {
+			if strings.Contains(bridgeName, "imessage-v2") {
+				platform = "rustpush"
+			}
 		}
 		if platform == "" {
 			err := survey.AskOne(&survey.Select{
 				Message: "Select iMessage connector:",
-				Options: []string{"mac", "mac-nosip", "bluebubbles"},
+				Options: []string{"mac", "mac-nosip", "bluebubbles", "rustpush"},
 				Description: simpleDescriptions(map[string]string{
 					"mac":         "Use AppleScript to send messages and read chat.db for incoming data - only requires Full Disk Access (from system settings)",
 					"mac-nosip":   "Use Barcelona to interact with private APIs - requires disabling SIP and AMFI",
 					"bluebubbles": "Connect to a BlueBubbles instance",
+					"rustpush":    "Use rustpush for iMessage registration and messaging",
 				}),
 				Default: "mac",
 			}, &platform)
