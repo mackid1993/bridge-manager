@@ -278,6 +278,11 @@ func doGenerateBridgeConfig(ctx *cli.Context, bridge string) (*generatedBridgeCo
 			_, _ = fmt.Fprintf(os.Stderr, color.YellowString("To run without specifying parameters interactively, add `%s` next time\n"), strings.Join(formattedParams, " "))
 		}
 	}
+	// If the user selected rustpush as the iMessage connector, switch to the imessage-v2 bridge type
+	// which uses the bridgev2 framework and has its own config template.
+	if bridgeType == "imessage" && extraParams["imessage_platform"] == "rustpush" {
+		bridgeType = "imessage-v2"
+	}
 	reg, err := doRegisterBridge(ctx, bridge, bridgeType, false)
 	if err != nil {
 		return nil, err
@@ -364,6 +369,11 @@ func generateBridgeConfig(ctx *cli.Context) error {
 		installInstructions = fmt.Sprintf("https://docs.mau.fi/bridges/go/setup.html?bridge=%s#installation", cfg.BridgeType)
 	case "imessagego":
 		startupCommand = "beeper-imessage"
+		if outputPath != "config.yaml" && outputPath != "<config file>" {
+			startupCommand += " -c " + outputPath
+		}
+	case "imessage-v2":
+		startupCommand = "mautrix-imessage-v2"
 		if outputPath != "config.yaml" && outputPath != "<config file>" {
 			startupCommand += " -c " + outputPath
 		}

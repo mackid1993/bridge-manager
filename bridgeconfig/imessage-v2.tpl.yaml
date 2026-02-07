@@ -1,0 +1,15 @@
+# Network-specific config options
+network:
+    # Display name template for iMessage contacts.
+    displayname_template: {{ `'{{if .FirstName}}{{.FirstName}}{{if .LastName}} {{.LastName}}{{end}}{{else if .Nickname}}{{.Nickname}}{{else if .Phone}}{{.Phone}}{{else if .Email}}{{.Email}}{{else}}{{.ID}}{{end}}'` }}
+    # How many days back to look for chats during initial sync.
+    # Default is 365 (1 year). Set to 0 to use the default.
+    initial_sync_days: 365
+
+{{ setfield . "CommandPrefix" "!im" -}}
+{{ setfield . "DatabaseFileName" "mautrix-imessage" -}}
+{{ setfield . "BridgeTypeName" "iMessage" -}}
+{{ setfield . "BridgeTypeIcon" "mxc://maunium.net/tManJEpANASZvDVzvRvhILdX" -}}
+{{ setfield . "DefaultPickleKey" "mautrix.bridge.e2ee" -}}
+{{ setfield . "MaxInitialMessages" 10000 -}}
+{{ template "bridgev2.tpl.yaml" . }}
